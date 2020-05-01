@@ -38,24 +38,62 @@ public class ChessBoard {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (cells[i][j] != null){
-                    ChessFigure figure = cells[i][j];
-                    if (!currentUser.equals(figure.getColor())){
+                    if (!currentUser.equals(cells[i][j].getColor())){
                         continue;
+                    }
+
+                    ChessFigure protectorFigure = cells[i][j];
+
+                    if (protectorFigure instanceof Pawn) {
+                        if (ChessFigure.white.equals(protectorFigure.getColor())) {
+                            ChessFigure enemy = cells[protectorFigure.getY() + 1][protectorFigure.getX() - 1];
+                            if (enemy != null && enemy.getColor().equals(ChessFigure.black)) {
+                                if (safeMove(protectorFigure.getY(), protectorFigure.getX(),
+                                        protectorFigure.getY() + 1, protectorFigure.getX() - 1, true)) {
+                                    continue;
+                                }
+                                return false;
+                            }
+                            enemy = cells[protectorFigure.getY() + 1][protectorFigure.getX() + 1];
+                            if (enemy != null && enemy.getColor().equals(ChessFigure.black)) {
+                                if (safeMove(protectorFigure.getY(), protectorFigure.getX(),
+                                        protectorFigure.getY() + 1, protectorFigure.getX() + 1, true)) {
+                                    continue;
+                                }
+                                return false;
+                            }
+                        } else if (ChessFigure.black.equals(protectorFigure.getColor())) {
+                            ChessFigure enemy = cells[protectorFigure.getY() - 1][protectorFigure.getX() - 1];
+                            if (enemy != null && enemy.getColor().equals(ChessFigure.black)) {
+                                if (safeMove(protectorFigure.getY(), protectorFigure.getX(),
+                                        protectorFigure.getY() - 1, protectorFigure.getX() - 1, true)) {
+                                    continue;
+                                }
+                                return false;
+                            }
+                            enemy = cells[protectorFigure.getY() - 1][protectorFigure.getX() + 1];
+                            if (enemy != null && enemy.getColor().equals(ChessFigure.black)) {
+                                if (safeMove(protectorFigure.getY(), protectorFigure.getX(),
+                                        protectorFigure.getY() - 1, protectorFigure.getX() + 1, true)) {
+                                    continue;
+                                }
+                                return false;
+                            }
+                        }
                     }
                     // check all possible moves of figure that can avoid check
                     for (int k = 0; k < 8; k++) {
                         for (int l = 0; l < 8; l++) {
-                            if (figure.can(k, l) && isMoveLegal(i, j, k, l)){
-                                boolean shahBack = shah;
-                                safeMove(i, j, k, l, true);
-                                if (shah){
+
+                            if (protectorFigure.can(k, l) && isMoveLegal(i, j, k, l)){
+
+                                if (safeMove(i, j, k, l, true)){
                                     continue;
                                 }
                                 // if shah is canceled
-                                shah = shahBack;
                                 // that mean that is not checkmate
                                 return false;
-                            };
+                            }
                         }
                     }
                 }
@@ -66,16 +104,18 @@ public class ChessBoard {
     }
 
     public boolean isMoveLegal(int x1, int y1, int x2, int y2) {
-        if (isInBoard(x1, y1) && cells[x1][y1] != null && cells[x1][y1].can(x2, y2)) {
+        if (isInBoard(x1, y1) && cells[x1][y1] != null) {
 
             ChessFigure movingFigure = cells[x1][y1];
 
             if (cellIsEmpty(x2, y2)){
-              if (movingFigure.isKnight()){
-                return true;
-              } else {
-                  return movingFigure.isPathClear(x2, y2);
-              }
+                if (movingFigure.can(x2, y2)) {
+                    if (movingFigure.isKnight()) {
+                        return true;
+                    } else {
+                        return isPathClear(movingFigure, x2, y2);
+                    }
+                }
 
             // check that figure in target cell is enemy
 
@@ -90,7 +130,7 @@ public class ChessBoard {
                             System.out.println("Cannot move movingFigure to " + x2 + " " + y2);
                             return false;
                         }
-                    } else if (movingFigure.getColor().equals(ChessFigure.black){
+                    } else if (movingFigure.getColor().equals(ChessFigure.black)){
                         if (dy == -1 && Math.abs(dx) == 1) {
                             return true;
                         } else {
@@ -99,17 +139,125 @@ public class ChessBoard {
                         }
                     }
                 }
-                if (movingFigure.isKnight()){
-                    return true;
-                } else {
-                    return movingFigure.isPathClear(x2, y2);
+                if (movingFigure.can(x2, y2)) {
+                    if (movingFigure.isKnight()) {
+                        return true;
+                    } else {
+                        return isPathClear(movingFigure, x2, y2);
+                    }
                 }
+            } else {
+                return false;
             }
 
         } else {
-            System.out.println("Cannot move figure to " + x2 + " " + y2);
+            System.out.println("No figure in " + x1 + " " + y1);
             return false;
         }
+        return true; // TODO WTF??
+    }
+
+    public boolean isPathClear(ChessFigure fig, int x, int y) {
+        if (fig instanceof Knight || fig instanceof King) {
+            return true;
+        }
+
+        int dx = x - fig.getX();
+        int dy = y - fig.getY();
+
+        boolean horizontal = dy == 0;
+        boolean toRight = dx > 0;
+        boolean toLeft = dx < 0;
+
+        boolean vertical = dx == 0;
+        boolean toTop = dy > 0;
+        boolean toBottom = dy < 0;
+
+        if (fig instanceof Rook || fig instanceof Queen) {
+            if (horizontal) {
+                if (toRight) {
+                    for (int i = fig.getX() + 1; i < x; i++) {
+                        if (cells[y][i] != null)
+                            return false;
+                    }
+                    return true;
+                }
+                if (toLeft){
+                    for (int i = fig.getX() - 1; i > x; i--) {
+                        if (cells[y][i] != null)
+                            return false;
+                    }
+                    return true;
+                }
+            }
+            if (vertical) {
+                if (toTop) {
+                    for (int i = fig.getY() - 1; i > y; i--) {
+                        if (cells[i][x] != null)
+                            return false;
+                    }
+                    return true;
+                }
+                if (toBottom) {
+                    for (int i = fig.getY() + 1; i < y; i++) {
+                        if (cells[i][x] != null)
+                            return false;
+                    }
+                    return true;
+                }
+            }
+        }
+
+        if (fig instanceof Bishop || fig instanceof Queen) {
+            if (dx > 0 && dy < 0) {
+                for (int i = 1; i < dx; i++) {
+                    if (cells[fig.getY() - i][fig.getX() + i] != null)
+                        return false;
+                }
+                return true;
+            }
+            if (dx < 0 && dy > 0) {
+                for (int i = -1; i > dx; i--) {
+                    if (cells[fig.getY() - i][fig.getX() + i] != null)
+                        return false;
+                }
+                return true;
+            }
+
+            // Move is vertical
+            if (dx < 0 && dy < 0) {
+                for (int i = -1; i > dx; i--) {
+                    if (cells[fig.getY() + i][fig.getX() + i] != null)
+                        return false;
+                }
+                return true;
+            }
+            if (dx > 0 && dy > 0) {
+                for (int i = 1; i < dx; i++) {
+                    if (cells[fig.getY() + i][fig.getX() + i] != null)
+                        return false;
+                    }
+                    return true;
+            }
+        }
+        if(fig instanceof Pawn){
+            if(Math.abs(dy) == 1){
+                return true;
+            }
+            if(Math.abs(dy) == 2){
+                if(dy>0){
+                    if(cells[fig.getY()+1][fig.getX()] != null)
+                        return false;
+                    else return true;
+                }
+                if (dy<0){
+                    if(cells[fig.getY()-1][fig.getX()] != null)
+                        return false;
+                    else return true;
+                }
+            }
+        }
+        return true;
     }
 
     public boolean cellIsEmpty(int x2, int y2){
@@ -124,14 +272,32 @@ public class ChessBoard {
                     if (currentUser.equals(cells[i][j].getColor())){
                         continue;
                     }
-                    cells[i][j].can(currentKing.getX(), currentKing.getY());
-                    if (cells[i][j].isKnight()) {
-                        System.out.println("Ш А Х");
-                        return true;
+
+                    ChessFigure checkingEnemiesFigure = cells[i][j];
+
+                    if (checkingEnemiesFigure instanceof Pawn){
+                        if (ChessFigure.white.equals(checkingEnemiesFigure.getColor())){
+                            if (cells[checkingEnemiesFigure.getY() + 1][checkingEnemiesFigure.getX() - 1] instanceof King ||
+                            cells[checkingEnemiesFigure.getY() + 1][checkingEnemiesFigure.getX() + 1] instanceof King){
+                                return true;
+                            }
+                        }
+                        if (ChessFigure.black.equals(checkingEnemiesFigure.getColor())){
+                            if (cells[checkingEnemiesFigure.getY() - 1][checkingEnemiesFigure.getX() - 1] instanceof King ||
+                                    cells[checkingEnemiesFigure.getY() - 1][checkingEnemiesFigure.getX() + 1] instanceof King){
+                                return true;
+                            }
+                        }
                     }
-                    if (cells[i][j].isPathClear(currentKing.getX(), currentKing.getY())){
-                        System.out.println("Ш А Х");
-                        return true;
+                    if (checkingEnemiesFigure.can(currentKing.getX(), currentKing.getY())){
+                        if (checkingEnemiesFigure instanceof Knight) {
+                            System.out.println("Ш А Х");
+                            return true;
+                        }
+                        if (isPathClear(checkingEnemiesFigure, currentKing.getX(), currentKing.getY())){
+                            System.out.println("Ш А Х");
+                            return true;
+                        }
                     }
                 }
             }
@@ -147,7 +313,9 @@ public class ChessBoard {
         cells[x1][y1] = null;
     }
 
-    public void safeMove(int x1, int y1, int x2, int y2, boolean virtual){
+    public boolean safeMove(int x1, int y1, int x2, int y2, boolean virtual){
+
+        boolean virtualShah = isShah();
 
         if (isMoveLegal(x1, y1, x2, y2)) {
             ChessFigure tempFig = null;
@@ -155,15 +323,15 @@ public class ChessBoard {
                 tempFig = cells[x2][y2];
             }
             move(x1, y1, x2, y2);
-//            shah = virtual ? shah : isShah();
-            shah = isShah();
-            if (shah || virtual){
+            virtualShah = isShah();
+            if (virtualShah || virtual){
                 move(x2, y2, x1, y1);
                 if (!(tempFig == null)){
                     cells[x2][y2] = tempFig;
                 }
             }
         }
+        return virtualShah;
     }
 
     @Override

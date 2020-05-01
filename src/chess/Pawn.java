@@ -22,6 +22,7 @@ public class Pawn extends ChessFigure {
         int dx = x - getX();
         int dy = y - getY();
         if (isInBoard()) {
+
             return (dx == 0 &&  Math.abs(dy) <= 2);
         }
         return false;
