@@ -4,7 +4,8 @@ public abstract class ChessFigure {
 
     private int x, y; // 0...7
     private final String color;
-
+    public static final String black = "black";
+    public static final String white = "white";
     public String getColor() {
         return color;
     }
