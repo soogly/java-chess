@@ -4,64 +4,62 @@ import java.util.Scanner;
 
 public class Game {
     static Scanner in  = new Scanner(System.in);
-    static ChessBoard board = new ChessBoard();
+    static ChessBoard board = new ChessBoard("twoKingTwoPawn");
+//    static ChessBoard board = new ChessBoard();
     static boolean gameOver = false;
-    static int[] turn;
+    static int[] turn = new int[4];
     static int x1, x2, y1, y2;
 
 
     public static void main(String[] args) {
 
         System.out.println(board);
-
         while (!gameOver) {
 
+            System.out.println(board.currentPlayer + "'s turn");
+            board.shah = board.isShah();
             turn = getTurn();
-            x1 = turn[0];
-            y1 = turn[1];
-            x2 = turn[2];
-            y2 = turn[3];
+            y1 = turn[0];
+            x1 = turn[1];
+            y2 = turn[2];
+            x2 = turn[3];
 
-            board.safeMove(x1, y1, x2, y2, false);
+            while (!board.isMoveLegal(x1, y1, x2, y2)) {
+                System.out.println(board);
+                System.out.println("move NOT LEGAL");
+                System.out.println(board.currentPlayer + "'s turn");
+                turn = getTurn();
+                y1 = turn[0];
+                x1 = turn[1];
+                y2 = turn[2];
+                x2 = turn[3];
+            }
+
+            board.shah = board.safeMove(x1, y1, x2, y2, false);
 
             while (board.shah){
                 turn = getTurn();
-                x1 = turn[0];
-                y1 = turn[1];
-                x2 = turn[2];
-                y2 = turn[3];
-                board.safeMove(x1, y1, x2, y2, false);
+                y1 = turn[0];
+                x1 = turn[1];
+                y2 = turn[2];
+                x2 = turn[3];
+                board.shah = board.safeMove(x1, y1, x2, y2, false);
             }
 
             System.out.println(board);
             // change player
-            board.currentUser = board.currentUser.equals("white") ? "black" : "white";
+            board.currentPlayer = board.currentPlayer.equals("white") ? "black" : "white";
             // check game isn't over
             gameOver = board.checkMate();
 
         }
+
+        System.out.println("G A M E  O V E R");
     }
 
-    static private void doTurn(){
-
-//            if (board.isMoveLegal(x1, y1, x2, y2)) {
-//                ChessFigure tempFig = null;
-//                if (!board.cellIsEmpty(x2, y2)){
-//                    tempFig = board.cells[x2][y2];
-//                }
-//                board.move(x1, y1, x2, y2);
-//                shah = board.isShah();
-//                if (shah){
-//                    board.move(x2, y2, x1, y1);
-//                    if (!(tempFig == null)){
-//                        board.cells[x2][y2] = tempFig;
-//                    }
-//                }
-//            }
-        }
 
     static private int[] getTurn(){
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 4; i++) {
             turn[i] = in.nextInt();
         }
         return turn;
