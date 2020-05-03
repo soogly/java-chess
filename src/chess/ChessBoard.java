@@ -5,7 +5,7 @@ public class ChessBoard {
     public static String message = "";
     public ChessFigure [][] cells = new ChessFigure[8][8];
     public String currentPlayer = "black";
-    boolean shah = isShah();
+    public boolean shah = isShah();
 
     King kingWhite = new King(4,0, ChessFigure.white);
     King kingBlack = new King(4,7, ChessFigure.black);
@@ -61,7 +61,7 @@ public class ChessBoard {
             cells[0][2] = new Bishop(2, 0, ChessFigure.white);
             cells[0][5] = new Bishop(5, 0, ChessFigure.white);
             cells[7][2] = new Bishop(2, 7, ChessFigure.black);
-            cells[4][2] = new Bishop(2, 4, ChessFigure.black);
+            cells[7][5] = new Bishop(5, 7, ChessFigure.black);
             cells[0][3] = new Queen(3, 0, ChessFigure.white);
             cells[5][5] = new Queen(5, 5, ChessFigure.black);
 
@@ -81,6 +81,43 @@ public class ChessBoard {
             cells[6][4] = null;
             cells[1][5] = null;
         }
+        if (combination.equals("HZ")) {
+            currentPlayer = "white";
+//            cells[0][4] = kingWhite;
+            cells[7][4] = kingBlack;
+            cells[0][0] = new Rook(0, 0, ChessFigure.white);
+            cells[0][1] = new Knight(1, 0, ChessFigure.white);
+            cells[0][7] = new Rook(7, 0, ChessFigure.white);
+            cells[0][6] = new Knight(6, 0, ChessFigure.white);
+            cells[7][0] = new Rook(0, 7, ChessFigure.black);
+            cells[7][7] = new Rook(7, 7, ChessFigure.black);
+            cells[7][1] = new Knight(1, 7, ChessFigure.black);
+            cells[7][6] = new Knight(6, 7, ChessFigure.black);
+            cells[0][2] = new Bishop(2, 0, ChessFigure.white);
+            cells[0][5] = new Bishop(5, 0, ChessFigure.white);
+            cells[7][2] = new Bishop(2, 7, ChessFigure.black);
+            cells[4][2] = new Bishop(2, 4, ChessFigure.black);
+            cells[0][3] = new Queen(3, 0, ChessFigure.white);
+//            cells[5][5] = new Queen(5, 5, ChessFigure.black);
+
+            for (int i = 1; i <= 6; i += 5) {
+                for (int j = 0; j < 8; j++) {
+                    switch (i) {
+                        case 1:
+                            cells[i][j] = new Pawn(j, i, ChessFigure.white);
+                            break;
+                        case 6:
+                            cells[i][j] = new Pawn(j, i, ChessFigure.black);
+                    }
+                }
+            }
+            kingWhite = new King(5,1, ChessFigure.white);
+            cells[1][5] = kingWhite;
+
+            cells[4][4] = cells[6][4];
+            cells[6][4] = null;
+            cells[0][4] = null;
+        }
         if (combination.equals("twoKingTwoPawn")) {
             cells[0][4] = kingWhite;
             cells[7][4] = kingBlack;
@@ -88,7 +125,6 @@ public class ChessBoard {
             cells[1][2] = new Pawn(2, 1, ChessFigure.black);
         }
     }
-
 
     public boolean checkMate(){
         if (!isShah()){
@@ -358,26 +394,45 @@ public class ChessBoard {
 
                     if (checkingEnemiesFigure instanceof Pawn){
                         if (ChessFigure.white.equals(checkingEnemiesFigure.getColor())){
-                            if (checkingEnemiesFigure.getX() > 0 && checkingEnemiesFigure.getY() < 7 && cells[checkingEnemiesFigure.getY() + 1][checkingEnemiesFigure.getX() - 1] instanceof King)
+                            if (checkingEnemiesFigure.getX() > 0 && checkingEnemiesFigure.getY() < 7 && cells[checkingEnemiesFigure.getY() + 1][checkingEnemiesFigure.getX() - 1] instanceof King &&
+                                    cells[checkingEnemiesFigure.getY() + 1][checkingEnemiesFigure.getX() - 1].getColor().equals(currentPlayer))
+                            {
+                                message = "Ш А Х " + checkingEnemiesFigure + checkingEnemiesFigure.getY() + checkingEnemiesFigure.getX();
+                                System.out.println(message);
                                 return true;
-                            if (checkingEnemiesFigure.getX() < 7 && checkingEnemiesFigure.getY() < 7 && cells[checkingEnemiesFigure.getY() + 1][checkingEnemiesFigure.getX() + 1] instanceof King)
+                            }
+                            if (checkingEnemiesFigure.getX() < 7 && checkingEnemiesFigure.getY() < 7 && cells[checkingEnemiesFigure.getY() + 1][checkingEnemiesFigure.getX() + 1] instanceof King &&
+                                    cells[checkingEnemiesFigure.getY() + 1][checkingEnemiesFigure.getX() + 1].getColor().equals(currentPlayer))
+                            {
+                                message = "Ш А Х " + checkingEnemiesFigure + checkingEnemiesFigure.getY() + checkingEnemiesFigure.getX();
+                                System.out.println(message);
                                 return true;
+                            }
                         }
                         if (ChessFigure.black.equals(checkingEnemiesFigure.getColor())){
-                            if (checkingEnemiesFigure.getX() > 0 && checkingEnemiesFigure.getY() > 0 && cells[checkingEnemiesFigure.getY() - 1][checkingEnemiesFigure.getX() - 1] instanceof King)
+                            if (checkingEnemiesFigure.getX() > 0 && checkingEnemiesFigure.getY() > 0 && cells[checkingEnemiesFigure.getY() - 1][checkingEnemiesFigure.getX() - 1] instanceof King &&
+                                    cells[checkingEnemiesFigure.getY() - 1][checkingEnemiesFigure.getX() - 1].getColor().equals(currentPlayer))
+                            {message = "Ш А Х " + checkingEnemiesFigure + checkingEnemiesFigure.getY() + checkingEnemiesFigure.getX();
+                                System.out.println(message);
                                 return true;
-                            if (checkingEnemiesFigure.getX() < 7 && checkingEnemiesFigure.getY() > 0 && cells[checkingEnemiesFigure.getY() - 1][checkingEnemiesFigure.getX() + 1] instanceof King)
+                            }
+                            if (checkingEnemiesFigure.getX() < 7 && checkingEnemiesFigure.getY() > 0 && cells[checkingEnemiesFigure.getY() - 1][checkingEnemiesFigure.getX() + 1] instanceof King &&
+                                    cells[checkingEnemiesFigure.getY() - 1][checkingEnemiesFigure.getX() + 1].getColor().equals(currentPlayer))
+                            {
+                                message = "Ш А Х " + checkingEnemiesFigure + checkingEnemiesFigure.getY() + checkingEnemiesFigure.getX();
+                                System.out.println(message);
                                 return true;
+                            }
                         }
                     }
                     if (checkingEnemiesFigure.can(currentKing.getX(), currentKing.getY())){
                         if (checkingEnemiesFigure instanceof Knight) {
-                            message = "Ш А Х";
+                            message = "Ш А Х " + checkingEnemiesFigure + checkingEnemiesFigure.getY() + checkingEnemiesFigure.getX();
                             System.out.println(message);
                             return true;
                         }
                         if (isPathClear(checkingEnemiesFigure, currentKing.getX(), currentKing.getY())){
-                            message = "Ш А Х";
+                            message = "Ш А Х " + checkingEnemiesFigure + checkingEnemiesFigure.getY() + checkingEnemiesFigure.getX();
                             System.out.println(message);
                             return true;
                         }

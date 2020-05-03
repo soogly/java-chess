@@ -21,8 +21,13 @@ public class King extends ChessFigure{
     public boolean can(int x, int y) {
         int dx = x - getX();
         int dy = y - getY();
-        if (isInBoard() && dx == 1 && dy == 1) {
-            return (dy == 0 && dx != 0) || (dx == 0 && dy != 0) || (Math.abs(dy) == Math.abs(dx));
+        if (isInBoard()) {
+            if (Math.abs(dx) == 1) {
+                return (Math.abs(dy) == 1 || dy == 0);
+            }
+            if (Math.abs(dy) == 1) {
+                return (Math.abs(dx) == 1 || dx == 0);
+            }
         }
         return false;
     }

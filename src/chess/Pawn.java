@@ -22,8 +22,20 @@ public class Pawn extends ChessFigure {
         int dx = x - getX();
         int dy = y - getY();
         if (isInBoard()) {
-
-            return (dx == 0 &&  Math.abs(dy) <= 2);
+            if(this.getColor().equals(ChessFigure.white)) {
+                if (getY() == 1) {
+                    return (dx == 0 && dy <= 2 && dy >= 1);
+                } else {
+                    return (dx == 0 && dy == 1);
+                }
+            }
+            if(this.getColor().equals(ChessFigure.black)) {
+                if(getY() == 6 ){
+                    return (dx == 0 &&  dy >= -2 && dy <= -1);
+                } else {
+                    return (dx == 0 && dy == -1);
+                }
+            }
         }
         return false;
     }

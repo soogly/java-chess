@@ -67,7 +67,7 @@ public class GameGUI extends JFrame implements gui.Face {
         currentPlayerLabel.setOpaque(true);
         currentPlayerLabel.setForeground(Color.black);
         currentPlayerLabel.setBounds(0, menuBarHeight*2+cellSize*8, boardSize, menuBarHeight);
-        lp.add(currentPlayerLabel, 100);
+        lp.add(currentPlayerLabel, new Integer(-1));
 
     }
 
@@ -102,7 +102,9 @@ public class GameGUI extends JFrame implements gui.Face {
                     @Override
                     public void mouseClicked(MouseEvent me) {
                         super.mouseClicked(me);
-
+                        if (gameOver){
+                            return;
+                        }
                         if (selected == null) {
                             xFrom = cell.x_;
                             yFrom = cell.y_;
@@ -111,17 +113,17 @@ public class GameGUI extends JFrame implements gui.Face {
                             } else {
                                 message.setText("");
                                 selected = cell;
-                                cell.color = Color.PINK;
-                                cell.repaint();
+                                figsMap[yFrom][xFrom].setForeground(new Color(36, 154, 184,255));
+                                figsMap[yFrom][xFrom].repaint();
                             }
                         } else {
-                            selected.color = selected.normalColor;
+                            figsMap[yFrom][xFrom].setForeground(selected.normalColor);
                             selected.repaint();
                             selected = null;
                             xTo = cell.x_;
                             yTo = cell.y_;
                             doTurn(xFrom, yFrom, xTo, yTo);
-                            message.setText(ChessBoard.message);//???
+
                         }
                         System.out.println(cell.y_ + " " + cell.x_);
                     }
@@ -132,46 +134,56 @@ public class GameGUI extends JFrame implements gui.Face {
 
     }
 
-    public void doTurn(int x1, int y1, int x2, int y2){
-        message.setText("");
+    public void doTurn(int x1, int y1, int x2, int y2) {
 
-        if (board.isMoveLegal(x1, y1, x2, y2)){
-            board.safeMove(x1, y1, x2, y2, false);
-            board.currentPlayer = board.currentPlayer.equals("white") ? "black" : "white";
-            currentPlayerLabel.setText(board.currentPlayer + "'s turn");
-            message.setText(ChessBoard.message);
-            FigureGUI figInHand = figsMap[y1][x1];
-            figInHand.setBounds(x2*cellSize, y2*cellSize+menuBarHeight*2+5, cellSize, cellSize);
-            figInHand.setForeground(map[y2][x2].color);
-
-            if(figsMap[y2][x2] != null){
-                figsMap[y2][x2].setVisible(false);
-                figsMap[y2][x2] = null;
-            }
-
-            figsMap[y2][x2] = figInHand;
-            figsMap[y1][x1] = null;
-
-            // show board in terminal
-            System.out.println(board);
-            System.out.println(board.currentPlayer);
+        if (!board.isMoveLegal(x1, y1, x2, y2)) {
+            message.setText("Move not legal");
+            return;
         } else {
-            // show board in terminal
-            System.out.println(board);
-            System.out.println(board.currentPlayer);
+            if (board.safeMove(x1, y1, x2, y2, false)) {
+                message.setText("Ш А Х");
+                return;
+            } else {
+                message.setText("");
+//                board.shah = false;
+                FigureGUI figInHand = figsMap[y1][x1];
+                figInHand.setBounds(x2 * cellSize, y2 * cellSize + menuBarHeight * 2 + 5, cellSize, cellSize);
+                figInHand.setForeground(map[y2][x2].color);
 
-            message.setText(ChessBoard.message);
-            //message.setVisible(true);
-        };
-        // change player
+                if (figsMap[y2][x2] != null) {
+                    figsMap[y2][x2].setVisible(false);
+                    figsMap[y2][x2] = null;
+                }
 
-        // check game isn't over
-        gameOver = board.checkMate();
+                figsMap[y2][x2] = figInHand;
+                figsMap[y1][x1] = null;
+
+                // show board in terminal
+                System.out.println(board);
+                System.out.println(board.currentPlayer);
+
+                message.setText(ChessBoard.message);
+                board.currentPlayer = board.currentPlayer.equals("white") ? "black" : "white";
+                currentPlayerLabel.setText(board.currentPlayer + "'s turn");
+
+                board.shah = board.isShah(); //?
+                if(board.shah){
+                    message.setText("Ш А Х");
+                } else{
+                    message.setText("");
+                }
+            }
+        }
+//        board.currentPlayer = board.currentPlayer.equals("white") ? "black" : "white";
+//        currentPlayerLabel.setText(board.currentPlayer + "'s turn");
+
+        if(board.checkMate()) {
+            message.setText("G A M E   O V E R");
+            gameOver = true;
+        }
     }
 
     public void arrangeFigures(){
-
-
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ChessFigure fig = board.cells[i][j];
@@ -187,7 +199,6 @@ public class GameGUI extends JFrame implements gui.Face {
                     figsMap[i][j] = figGui;
                 }
             }
-
         }
     }
 
@@ -202,9 +213,10 @@ public class GameGUI extends JFrame implements gui.Face {
         });
         open.addActionListener(actionEvent -> {
             GameGUI gameWindow = new GameGUI("Chess");
-            gameWindow.board = new ChessBoard();
+            GameGUI.board = new ChessBoard();
             gameWindow.drawBoard();
             gameWindow.arrangeFigures();
+            gameOver = false;
             dispose();
         });
         file.add(open);
@@ -217,5 +229,7 @@ public class GameGUI extends JFrame implements gui.Face {
         GameGUI gameWindow = new GameGUI("Chess");
         gameWindow.drawBoard();
         gameWindow.arrangeFigures();
+        message.setText("");
+        currentPlayerLabel.setText(board.currentPlayer + "'s turn");
     }
 }
