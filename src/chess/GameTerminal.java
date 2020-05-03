@@ -2,10 +2,10 @@ package chess;
 
 import java.util.Scanner;
 
-public class Game {
+public class GameTerminal {
     static Scanner in  = new Scanner(System.in);
-    static ChessBoard board = new ChessBoard("twoKingTwoPawn");
-//    static ChessBoard board = new ChessBoard();
+//    static ChessBoard board = new ChessBoard("twoKingTwoPawn");
+    static ChessBoard board = new ChessBoard();
     static boolean gameOver = false;
     static int[] turn = new int[4];
     static int x1, x2, y1, y2;

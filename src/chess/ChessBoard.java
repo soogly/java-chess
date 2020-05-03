@@ -2,6 +2,7 @@ package chess;
 
 public class ChessBoard {
 
+    public static String message = "";
     public ChessFigure [][] cells = new ChessFigure[8][8];
     public String currentPlayer = "black";
     boolean shah = isShah();
@@ -152,7 +153,9 @@ public class ChessBoard {
                                 if (!safeMove(j, i, l, k, true)){
                                     // if shah is canceled
                                     // that mean that is not checkmate
-                                    System.out.println("Saving move: " + cells[i][j] + " from "+ i + j + " to " + k + l);
+
+//                                    message = "First fined saving move: " + cells[i][j] + " from "+ i + j + " to " + k + l;
+                                    System.out.println("First fined saving move: " + cells[i][j] + " from "+ i + j + " to " + k + l);
                                     return false;
                                 }
                             }
@@ -162,7 +165,8 @@ public class ChessBoard {
             }
         }
         // Checkmate!
-        System.out.println("M A T");
+        message = "M A T";
+        System.out.println(message);
         return true;
     }
 
@@ -180,7 +184,8 @@ public class ChessBoard {
                     }
                 }
                 // if cell is empty but figure in hand can't go in it
-                System.out.println("That figure can't move like you want");
+                message = "That figure can't move like you want";
+                System.out.println(message);
                 return false;
 
             // check that figure in target cell is enemy
@@ -193,14 +198,16 @@ public class ChessBoard {
                         if (dy == 1 && Math.abs(dx) == 1) {
                             return true;
                         } else {
-                            System.out.println("Cannot move figInHand to " + x2 + " " + y2);
+                            message = "Cannot move figInHand to " + x2 + " " + y2;
+                            System.out.println(message);
                             return false;
                         }
                     } else if (figInHand.getColor().equals(ChessFigure.black)){
                         if (dy == -1 && Math.abs(dx) == 1) {
                             return true;
                         } else {
-                            System.out.println("Cannot move figInHand to " + x2 + " " + y2);
+                            message = "Cannot move figInHand to " + x2 + " " + y2;
+                            System.out.println(message);
                             return false;
                         }
                     }
@@ -213,19 +220,21 @@ public class ChessBoard {
                     }
                 } else {
                     // if cell is empty but figure in hand can't go in it
-                    System.out.println("That figure can't move like you want");
+                    message = "That figure can't move like you want";
+                    System.out.println(message);
                     return false;
                 }
             } else {
                 // is not enemy in move target
+//                message = "Is not enemy in move target";
                 System.out.println("Is not enemy in move target");
                 return false;
             }
         } else {
-            System.out.println("No your figure in " + x1 + " " + y1);
+            message = "No your figure in " + x1 + " " + y1;
+            System.out.println(message);
             return false;
         }
-//        return true; // TODO WTF??
     }
 
     public boolean isPathClear(ChessFigure fig, int x, int y) {
@@ -363,11 +372,13 @@ public class ChessBoard {
                     }
                     if (checkingEnemiesFigure.can(currentKing.getX(), currentKing.getY())){
                         if (checkingEnemiesFigure instanceof Knight) {
-                            System.out.println("Ш А Х");
+                            message = "Ш А Х";
+                            System.out.println(message);
                             return true;
                         }
                         if (isPathClear(checkingEnemiesFigure, currentKing.getX(), currentKing.getY())){
-                            System.out.println("Ш А Х");
+                            message = "Ш А Х";
+                            System.out.println(message);
                             return true;
                         }
                     }
